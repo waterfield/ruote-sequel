@@ -245,7 +245,7 @@ puts "got #{docs.size} docs"
     # Returns all the ids of the documents of a given type.
     #
     def ids(type)
-      @sequel["select distinct(ide) from #{@table} order by 1"].map(:ide)
+      @sequel["select distinct(ide) from #{@table} typ='#{type.to_s}' order by 1"].map(:ide)
     end
 
     # Nukes all the documents in this storage.
