@@ -200,16 +200,11 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
 
     def get_many(type, key=nil, opts={})
       batch_size = 200
-puts "MY get_many #{type} #{opts}"
       if key.is_a?(Array) && key.size > batch_size
         docs = []
-i = 0
         key.each_slice(batch_size) do |slice|
-i += 1
-puts "slice #{i}"
           docs << get_many(type, slice, opts)
         end
-puts "got #{docs.size} docs"
         return docs
       end
 
@@ -438,7 +433,6 @@ puts "got #{docs.size} docs"
     # are rare, the cost of the pumped SQL is not constant :-(
     #
     def select_last_revs(docs)
-puts "select_last_revs: #{docs.select_sql}"
       docs.all.each_with_object([]) { |doc, a|
         a << doc if a.last.nil? || doc[:ide] != a.last[:ide]
       }
@@ -457,7 +451,6 @@ puts "select_last_revs: #{docs.select_sql}"
     # (expressions excepted).
     #
     def prepare_cache
-puts "MY prepare_cache"
       CACHED_TYPES.each { |t| cache[t] = {} }
 
       CACHED_TYPES.each do |typ|
@@ -472,7 +465,6 @@ puts "MY prepare_cache"
         )
 
         list = stmt.all
-puts "caching #{list.size} #{typ}"
         list.each do |d|
           (cache[d[:typ]] ||= {})[d[:ide]] ||= decode_doc(d)
         end
