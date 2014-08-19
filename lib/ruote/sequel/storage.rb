@@ -355,7 +355,7 @@ puts "got #{docs.size} docs"
         if v.to_s =~ /^\d+$/
           ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v.to_s)}%", "%\"#{k}\":#{Rufus::Json.decode(v.to_s)}%"))
         else
-          ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v)}%")
+          ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v)}%"))
         end
       end
 
