@@ -352,7 +352,11 @@ puts "got #{docs.size} docs"
       ds = ds.filter(:participant_name => pname) if pname
 
       criteria.collect do |k, v|
-        ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v)}%"))
+        if v.to_s =~ /^\d+$/
+          ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v.to_s)}%", "%\"#{k}\":#{Rufus::Json.decode(v.to_s)}%"))
+        else
+          ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v)}%"))
+        end
       end
 
       return ds.count if count
