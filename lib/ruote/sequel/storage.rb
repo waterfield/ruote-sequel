@@ -347,7 +347,7 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
       ds = ds.filter(:participant_name => pname) if pname
 
       criteria.collect do |k, v|
-        if v.to_s =~ /^\d+$/
+        if v.to_s =~ /^[1-9]\d*$/
           ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v.to_s)}%", "%\"#{k}\":#{Rufus::Json.decode(v.to_s)}%"))
         else
           ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v)}%"))
