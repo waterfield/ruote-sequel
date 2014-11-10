@@ -211,7 +211,7 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
       cached = cache_get_many(type, key, opts)
       return cached if cached
 
-      ds = @sequel[@table].where(:typ => type).nolock
+      ds = @sequel[@table].where(:typ => type)
 
       keys = key ? Array(key) : nil
       ds = ds.filter(:wfid => keys) if keys && keys.first.is_a?(String)
@@ -240,7 +240,7 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
     # Returns all the ids of the documents of a given type.
     #
     def ids(type)
-      @sequel["select distinct(ide) from #{@table} with(nolock) where typ='#{type.to_s}' order by 1"].map(:ide)
+      @sequel["select distinct(ide) from #{@table} where typ='#{type.to_s}' order by 1"].map(:ide)
     end
 
     # Nukes all the documents in this storage.
@@ -289,7 +289,7 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
 
       docs = @sequel[@table].where(
         :typ => type, :participant_name => participant_name
-      ).nolock
+      )
 
       return docs.count if opts[:count]
 
@@ -316,7 +316,7 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
         :typ => type
       ).filter(
         ::Sequel.like(:doc, lk.join)
-      ).nolock
+      )
 
       return docs.count if opts[:count]
 
@@ -331,7 +331,7 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
 
     def query_workitems(criteria)
 
-      ds = @sequel[@table].where(:typ => 'workitems').nolock
+      ds = @sequel[@table].where(:typ => 'workitems')
 
       count = criteria.delete('count')
 
@@ -422,7 +422,7 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
 
       d = @sequel[@table].select(:doc).where(
         :typ => type, :ide => key
-      ).nolock.reverse_order(:rev).first
+      ).reverse_order(:rev).first
 
       decode_doc(d)
     end
@@ -456,7 +456,7 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
       CACHED_TYPES.each do |typ|
         stmt = @sequel[@table].select(
           :ide, :typ, :doc
-        ).nolock.where(
+        ).where(
           :typ => typ
         ).limit(
           100
