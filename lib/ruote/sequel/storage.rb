@@ -203,7 +203,7 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
       if key.is_a?(Array) && key.size > batch_size
         docs = []
         key.each_slice(batch_size) do |slice|
-          docs << get_many(type, slice, opts)
+          docs += get_many(type, slice, opts)
         end
         return docs
       end
