@@ -233,6 +233,8 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
         docs
       end
 
+      docs.select { |doc| doc.has_key?('_id') }
+
       # (pass on the dataset.filter(:wfid => /regexp/) for now
       # since we have potentially multiple keys)
     end
