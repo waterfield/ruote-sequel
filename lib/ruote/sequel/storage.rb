@@ -54,7 +54,7 @@ module Sequel
 
       primary_key [ :typ, :ide, :rev ]
 
-      index :wfid
+      #index :wfid # this index commented out by Richard Matthews, 2015-04-08, to reduce deadlocking in the database
       #index [ :typ, :wfid ]
     end
   end
