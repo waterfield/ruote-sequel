@@ -350,9 +350,9 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
 
       criteria.collect do |k, v|
         if v.to_s =~ /^[1-9]\d*$/
-          ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v.to_s)}%", "%\"#{k}\":#{Rufus::Json.decode(v.to_s)}%"))
+          ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v.to_s)},%", "%\"#{k}\":#{Rufus::Json.decode(v.to_s)},%"))
         else
-          ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v)}%"))
+          ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v)},%"))
         end
       end
 
