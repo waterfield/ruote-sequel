@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  route_sequel: &route_sequel
+    build:
+      context: .
+      dockerfile: Dockerfile.devcontainer
+    stdin_open: true
+    tty: true
+    environment:
+      HISTFILE: /root/hist/.zsh_history # inspired by https://gist.github.com/gido/9b7e323571cf61820bd4baef92e30861
+      PG_HOST: route_sequel__postgresql
+      POSTGRES_USER: user
+      PG_DB: route_sequel_development
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ../:/app:delegated
+      - ~/.docker:/root/.docker:z # ?
+      - /var/run/docker.sock:/var/run/docker.sock # ?
+      - route_sequel__gems:/gems
+      - route_sequel__vscode-extensions:/root/.vscode-server/extensions
+      - ~/.gitconfig:/root/.gitconfig:z
+      - ~/.ssh:/root/.ssh:z
+      - route_sequel__zsh_history:/root/hist
+volumes:
+  route_sequel__gems:
+  route_sequel__vscode-extensions:
+  route_sequel__zsh_history:
+  route_sequel__postgres_volume:

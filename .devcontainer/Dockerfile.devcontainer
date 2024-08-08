@@ -1,0 +1,38 @@
+FROM ruby:2.5.9
+
+ENV APP_HOME /app
+
+WORKDIR ${APP_HOME}
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+  ca-certificates \
+  less \
+  build-essential \
+  vim \
+  file \
+  wget \
+  curl \
+  graphviz \
+  nodejs \
+  npm \
+  # postgresql
+  libpq-dev \
+  postgresql-client \
+  # psql + extensions
+  postgresql-contrib \
+  && apt-get autoremove -y \
+  && apt-get clean \
+  && rm -rf /var/cache/* /var/lib/apt/lists/*
+
+ENV LANG en_US.UTF-8
+
+RUN npm install --global yarn
+
+ENV BUNDLE_GEMFILE=${APP_HOME}/Gemfile \
+  BUNDLE_JOBS=8 \
+  BUNDLE_PATH=/gems
+
+COPY .. .
+
+RUN cat .docker/.vimrc >> ~/.vimrc
