@@ -317,7 +317,8 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
       docs = @sequel[@table].where(
         :typ => type
       ).filter(
-        ::Sequel.like(:doc, lk.join)
+        # ::Sequel.like(:doc, lk.join)
+        ::Sequel.lit("`doc` LIKE ?", lk.join)
       )
 
       return docs.count if opts[:count]
@@ -345,14 +346,21 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
       pname =
         criteria.delete('participant_name') || criteria.delete('participant')
 
-      ds = ds.filter(::Sequel.like(:ide, "%!#{wfid}")) if wfid
+      # ds = ds.filter(::Sequel.like(:ide, "%!#{wfid}")) if wfid
+      ds = ds.filter(::Sequel.lit("`ide` LIKE ?", "%!#{wfid}")) if wfid
       ds = ds.filter(:participant_name => pname) if pname
 
       criteria.collect do |k, v|
         if v.to_s =~ /^[1-9]\d*$/
-          ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v.to_s)},%", "%\"#{k}\":#{Rufus::Json.decode(v.to_s)},%"))
+          # ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v.to_s)},%", "%\"#{k}\":#{Rufus::Json.decode(v.to_s)},%"))
+          patterns = []
+          patterns << "%\"#{k}\":#{Rufus::Json.encode(v.to_s)},%"
+          patterns << "%\"#{k}\":#{Rufus::Json.decode(v.to_s)},%" rescue nil
+          conditions = patterns.map { |p| ::Sequel.lit("`doc` LIKE ?", p) }
+          ds = ds.filter(::Sequel.|(*conditions))
         else
-          ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v)},%"))
+          # ds = ds.filter(::Sequel.like(:doc, "%\"#{k}\":#{Rufus::Json.encode(v)},%"))
+          ds = ds.filter(::Sequel.lit("`doc` LIKE ?", "%\"#{k}\":#{Rufus::Json.encode(v)},%"))
         end
       end
 
