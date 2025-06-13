@@ -48,7 +48,7 @@ module Sequel
       String :ide, :size => 255, :null => false
       Integer :rev, :null => false
       String :typ, :size => 55, :null => false
-      String :doc, :json, :null => false
+      String :doc, :text => true, :null => false
       String :wfid, :size => 255
       String :participant_name, :size => 512
 
