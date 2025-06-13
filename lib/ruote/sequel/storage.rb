@@ -25,6 +25,7 @@
 require 'sequel'
 require 'ruote/storage/base'
 require 'ruote/sequel/version'
+require 'rails'
 
 
 module Ruote
