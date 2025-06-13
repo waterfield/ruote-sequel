@@ -98,6 +98,8 @@ module Sequel
 
       @sequel = sequel
       @table = (options['sequel_table_name'] || :documents).to_sym
+      @logger = Rails.logger || Logger.new(STDOUT)
+      @logger.level = Logger::INFO
 
       Ruote::Sequel.create_table(@sequel, false, @table)
 
@@ -138,13 +140,13 @@ module Sequel
     end
 
     def put(doc, opts={})
-      Rails.logger.info(__FILE__) { "Attempting to put doc: type=#{doc['type']}, id=#{doc['_id']}, rev=#{doc['_rev']}" }
+      @logger.info(__FILE__) { "Attempting to put doc: type=#{doc['type']}, id=#{doc['_id']}, rev=#{doc['_rev']}" }
       cache_clear(doc)
 
       if doc['_rev']
 
         d = get(doc['type'], doc['_id'])
-        Rails.logger.info(__FILE__) { "Existing doc: #{d.inspect}" }
+        @logger.info(__FILE__) { "Existing doc: #{d.inspect}" }
         return true unless d
         return d if d['_rev'] != doc['_rev']
           # failures
@@ -157,7 +159,7 @@ module Sequel
         do_insert(doc, nrev, opts[:update_rev])
 
       rescue ::Sequel::DatabaseError => de
-        Rails.logger.error(__FILE__) { "Insert failed: #{de.message}\n#{de.backtrace.join("\n")}" }
+        @logger.error(__FILE__) { "Insert failed: #{de.message}\n#{de.backtrace.join("\n")}" }
         return (get(doc['type'], doc['_id']) || true)
           # failure
       end
@@ -167,14 +169,14 @@ module Sequel
           @sequel[@table].where(
             :typ => doc['type'], :ide => doc['_id']
           ).filter { rev < nrev }.delete
-          Rails.logger.info(__FILE__) { "Deleted older revisions for #{doc['_id']}" }
+          @logger.info(__FILE__) { "Deleted older revisions for #{doc['_id']}" }
           return nil # success
         rescue ::Sequel::DatabaseError => de
-          Rails.logger.error(__FILE__) { "Delete failed (try #{i + 1}): #{de.message}\n#{de.backtrace.join("\n")}" }
+          @logger.error(__FILE__) { "Delete failed (try #{i + 1}): #{de.message}\n#{de.backtrace.join("\n")}" }
 puts "put: got exception #{de.to_s}, try number #{i + 1}"
         end
       end
-      Rails.logger.error(__FILE__) { "Failed to put doc: #{doc['_id']}" }
+      @logger.error(__FILE__) { "Failed to put doc: #{doc['_id']}" }
       raise Exception.new("Ruote::Sequel::Storage.put failed")
     end
 
@@ -396,7 +398,7 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
     end
 
     def do_insert(doc, rev, update_rev=false)
-      Rails.logger.info(__FILE__) { "Inserting doc: type=#{doc['type']}, id=#{doc['_id']}, rev=#{rev}" }
+      @logger.info(__FILE__) { "Inserting doc: type=#{doc['type']}, id=#{doc['_id']}, rev=#{rev}" }
       doc = doc.send(
         update_rev ? :merge! : :merge,
         { '_rev' => rev, 'put_at' => Ruote.now_to_utc_s })
@@ -425,9 +427,9 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
             :wfid => :$wfid,
             :participant_name => :$participant_name
           })
-          Rails.logger.info(__FILE__) { "Inserted doc: #{doc['_id']}" }
+          @logger.info(__FILE__) { "Inserted doc: #{doc['_id']}" }
       rescue ::Sequel::DatabaseError => de
-        Rails.logger.error(__FILE__) { "Insert failed: #{de.message}\n#{de.backtrace.join("\n")}" }
+        @logger.error(__FILE__) { "Insert failed: #{de.message}\n#{de.backtrace.join("\n")}" }
         raise Exception.new("Ruote::Sequel::Storage.put failed: #{de.message}")
       end
     end
