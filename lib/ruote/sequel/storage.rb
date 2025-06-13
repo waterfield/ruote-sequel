@@ -101,7 +101,7 @@ module Sequel
       @logger = Rails.logger || Logger.new(STDOUT)
       @logger.level = Logger::INFO
 
-      Ruote::Sequel.create_table(@sequel, true, @table)
+      Ruote::Sequel.create_table(@sequel, false, @table)
 
       replace_engine_configuration(options)
     end
