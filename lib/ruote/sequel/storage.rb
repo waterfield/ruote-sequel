@@ -405,22 +405,33 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
       #
       # Thanks Geoff Herney
       #
-      @sequel[@table].call(
-        :insert, {
-          :ide => (doc['_id'] || ''),
-          :rev => (rev || ''),
-          :typ => (doc['type'] || ''),
-          :doc => (Rufus::Json.encode(doc) || ''),
-          :wfid => (extract_wfid(doc) || ''),
-          :participant_name => (doc['participant_name'] || '')
-        }, {
-          :ide => :$ide,
-          :rev => :$rev,
-          :typ => :$typ,
-          :doc => :$doc,
-          :wfid => :$wfid,
-          :participant_name => :$participant_name
-        })
+      existing = @sequel[@table].where(ide: doc['_id']).first
+      if existing
+        @sequel[@table].where(ide: doc['_id']).update(
+          rev: rev,
+          typ: doc['type'],
+          doc: Rufus::Json.encode(doc),
+          wfid: extract_wfid(doc),
+          participant_name: doc['participant_name']
+        )
+      else
+        @sequel[@table].call(
+          :insert, {
+            :ide => (doc['_id'] || ''),
+            :rev => (rev || ''),
+            :typ => (doc['type'] || ''),
+            :doc => (Rufus::Json.encode(doc) || ''),
+            :wfid => (extract_wfid(doc) || ''),
+            :participant_name => (doc['participant_name'] || '')
+          }, {
+            :ide => :$ide,
+            :rev => :$rev,
+            :typ => :$typ,
+            :doc => :$doc,
+            :wfid => :$wfid,
+            :participant_name => :$participant_name
+          })
+      end
     end
 
     def extract_wfid(doc)
