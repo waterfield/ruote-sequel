@@ -405,11 +405,9 @@ puts "put: got exception #{de.to_s}, try number #{i + 1}"
       #
       # Thanks Geoff Herney
       #
-      existing = @sequel[@table].where(ide: doc['_id']).first
+      existing = @sequel[@table].where(typ: doc['type'], ide: doc['_id'], rev: rev).first
       if existing
-        @sequel[@table].where(ide: doc['_id']).update(
-          rev: rev,
-          typ: doc['type'],
+        @sequel[@table].where(typ: doc['type'], ide: doc['_id'], rev: rev).update(
           doc: Rufus::Json.encode(doc),
           wfid: extract_wfid(doc),
           participant_name: doc['participant_name']
